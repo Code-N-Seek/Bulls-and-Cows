@@ -59,10 +59,11 @@ public class EntryFrame extends JFrame {
      * - 주어진 단어 길이를 게임 화면에 설정하고,
      * 게임 화면을 업데이트한 후, 게임 화면으로 전환
      *
+     * @param gameKind 게임 종류
      * @param wordLength 게임에 사용될 단어의 길이
      */
-    public void startGame(int wordLength) {
-        gameScreen.setWordLength(wordLength);
+    public void startGame(String gameKind, int wordLength) {
+        gameScreen.initGameSetting(gameKind, wordLength);
         gameScreen.updateGameScreen();
         showScreen("gameScreen");
     }

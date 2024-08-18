@@ -1,15 +1,18 @@
 package com.codenseek.bac.src;
 
+import com.codenseek.bac.src.util.GameKind;
+import com.codenseek.bac.src.util.UIConstants;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * 숫자야구 게임의 초기 화면 구현 클래스
  * - 사용자가 게임에서 사용할 단어의 자릿수를 입력하고 이를 확인하는 기능 제공
- *
- * TODO: 영어/숫자 선택 기능 구현
  */
 public class InitialScreen extends JPanel {
+    private final JComboBox<GameKind> gameKindCombo;  // 게임 종류를 선택하는 콤보 박스
     private final JTextField wordLengthField;   // 자릿수를 입력받는 텍스트 필드
 
     /**
@@ -19,41 +22,97 @@ public class InitialScreen extends JPanel {
      * @param frame EntryFrame 객체
      */
     public InitialScreen(EntryFrame frame) {
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        // 자릿수 레이블
+        /**
+         * 게임 종류 지정
+         */
+        // 패널
+        JPanel gameKindPanel = new JPanel();
+        gameKindPanel.setLayout(new BoxLayout(gameKindPanel, BoxLayout.Y_AXIS));
+        gameKindPanel.setBorder(UIConstants.COMMON_EMPTY_BORDER);
+
+        // 레이블
+        JLabel gameKindLabel = new JLabel("게임 종류를 선택하세요.", JLabel.CENTER);
+        gameKindLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gameKindPanel.add(gameKindLabel);
+
+        // 콤보박스(숫자/영어단어)
+        gameKindCombo = new JComboBox<>(GameKind.values());
+        gameKindCombo.setPreferredSize(new Dimension(80, 25));  // 크기 조절
+        gameKindCombo.setMaximumSize(gameKindCombo.getPreferredSize());
+        gameKindCombo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gameKindPanel.add(gameKindCombo);
+
+        add(gameKindPanel);
+
+        /**
+         * 자릿수 지정
+         */
+        // 패널
+        JPanel wordLengthPanel = new JPanel();
+        wordLengthPanel.setLayout(new BoxLayout(wordLengthPanel, BoxLayout.Y_AXIS));
+        gameKindPanel.setBorder(UIConstants.COMMON_EMPTY_BORDER);
+
+        // 레이블
         JLabel wordLengthLabel = new JLabel("자릿수를 입력하세요.(3~7)", JLabel.CENTER);
-        add(wordLengthLabel, BorderLayout.NORTH);
+        wordLengthLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        wordLengthPanel.add(wordLengthLabel);
 
         // 자릿수를 입력받는 텍스트 필드
-        wordLengthField = new JTextField(1);
-        wordLengthField.setPreferredSize(new Dimension(10, 10));
-        add(wordLengthField, BorderLayout.CENTER);
+        wordLengthField = new JTextField(2);
+        wordLengthField.setMaximumSize(wordLengthField.getPreferredSize());  // 최대 크기를 선호 크기로 제한
+        wordLengthField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        wordLengthPanel.add(wordLengthField);
+
+        add(wordLengthPanel);
+
+        /**
+         * 확인 버튼
+         */
+        // 패널
+        JPanel confirmPanel = new JPanel();
+        confirmPanel.setLayout(new BoxLayout(confirmPanel, BoxLayout.Y_AXIS));
+        confirmPanel.setBorder(UIConstants.COMMON_EMPTY_BORDER);
 
         // 확인 버튼
         JButton confirmButton = new JButton("확인");
-        add(confirmButton, BorderLayout.SOUTH);
+        confirmButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        add(confirmButton);
 
         confirmButton.addActionListener(e -> {
             try {
-                int wordLength = Integer.parseInt(wordLengthField.getText());
+                // 게임 종류
+                GameKind gameKind = (GameKind) gameKindCombo.getSelectedItem();
 
+                if (Objects.isNull(gameKind)) {
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            "게임 종류를 선택해 주세요.",
+                            UIConstants.ERROR,
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    return; // 게임 종류가 선택되지 않은 경우 메서드 종료
+                }
+
+                // 자릿수 판단
+                int wordLength = Integer.parseInt(wordLengthField.getText());
                 if(wordLength < 3 || wordLength > 7) {
                     JOptionPane.showMessageDialog(
                             frame,
                             "숫자/영어의 자릿수는 3~7 사이여야 합니다.",
-                            "입력 오류",
+                            UIConstants.ERROR,
                             JOptionPane.ERROR_MESSAGE
                     );
                 } else {
-                    frame.startGame(wordLength);
+                    frame.startGame(gameKind.getValue(), wordLength);
                 }
             } catch (NumberFormatException ex) {
                 // 숫자가 아닌 값을 입력한 경우 경고 메시지를 출력
                 JOptionPane.showMessageDialog(
                         frame,
-                        "유효한 숫자를 입력하세요.",
-                        "입력 오류",
+                        "숫자만 입력 가능합니다.",
+                        UIConstants.ERROR,
                         JOptionPane.ERROR_MESSAGE
                 );
             }

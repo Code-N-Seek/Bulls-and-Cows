@@ -1,5 +1,7 @@
 package com.codenseek.bac.src;
 
+import com.codenseek.bac.src.util.UIConstants;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -14,21 +16,25 @@ import java.awt.*;
  * TODO: 정답 판별 및 처리 구현
  */
 public class GameScreen extends JPanel {
+    private String gameKind;    // 게임 진행 종류(숫자/영어단어)
     private int wordLength; // 게임에서 사용할 단어의 자릿수
     private final JPanel inputPanel;    // 사용자 입력 패널
     private JTextField[] inputFields;   // 사용자 입력 필드 배열
     private final DefaultTableModel historyTableModel;  // 과거 입력 내역 테이블 모델
     private String[] columnNames;   // 테이블의 열 이름 배열
     private final JButton startResetButton; // 게임 시작/초기화 버튼
+    private final JButton checkButton; // 확인 버튼
     private boolean isGameStarted = false;  // 게임 시작 여부
 
 
     /**
-     * 게임에서 사용할 단어의 자릿수를 설정하고, 화면을 업데이트
+     * 게임 초기 셋팅 및 화면 업데이트
      *
+     * @param gameKind 게임 종류
      * @param wordLength 게임에서 사용할 단어의 자릿수
      */
-    public void setWordLength(int wordLength) {
+    public void initGameSetting(String gameKind, int wordLength) {
+        this.gameKind = gameKind;
         this.wordLength = wordLength;
         setColumnNames();
         updateGameScreen();
@@ -107,7 +113,8 @@ public class GameScreen extends JPanel {
         submitPanel.add(inputPanel, BorderLayout.CENTER);
 
         // 확인 버튼
-        JButton checkButton = new JButton("확인");
+        checkButton = new JButton("확인");
+        checkButton.setEnabled(false);
         submitPanel.add(checkButton, BorderLayout.EAST);
 
         checkButton.addActionListener(e -> handleUserInput());
@@ -127,7 +134,7 @@ public class GameScreen extends JPanel {
 
         // 열 너비 설정
         TableColumnModel columnModel = historyTable.getColumnModel();
-        for (int i = 0; i < columnModel.getColumnCount(); i++) {
+        for(int i = 0; i < columnModel.getColumnCount(); i++) {
             columnModel.getColumn(i).setPreferredWidth(1);
         }
 
@@ -145,8 +152,11 @@ public class GameScreen extends JPanel {
      */
     private void startGame() {
         updateGameScreen();
-        startResetButton.setText("초기화");
+        startResetButton.setText("종료");
         isGameStarted = true;
+
+        setFieldsEnabled(true);
+        checkButton.setEnabled(true);
     }
 
     /**
@@ -160,6 +170,22 @@ public class GameScreen extends JPanel {
         }
         startResetButton.setText("시작");
         isGameStarted = false;
+
+        setFieldsEnabled(false);
+        checkButton.setEnabled(false);
+    }
+
+    /**
+     * 입력 필드의 활성화/비활성화 설정
+     *
+     * @param enabled 입력 필드 활성화 여부
+     */
+    private void setFieldsEnabled(boolean enabled) {
+        if (inputFields != null) {
+            for (JTextField inputField : inputFields) {
+                inputField.setEnabled(enabled);
+            }
+        }
     }
 
     /**
@@ -170,9 +196,11 @@ public class GameScreen extends JPanel {
         // 입력칸 갱신
         inputPanel.removeAll();
         inputFields = new JTextField[wordLength];
-        for (int i = 0; i < wordLength; i++) {
+        for(int i = 0; i < wordLength; i++) {
             JTextField input = new JTextField(2);
+            input.setEnabled(false);
             inputFields[i] = input;
+
             inputPanel.add(input);
         }
         inputPanel.revalidate();    // 입력 패널 갱신
@@ -191,16 +219,50 @@ public class GameScreen extends JPanel {
             JOptionPane.showMessageDialog(
                     this,
                     "입력 칸이 초기화되지 않았습니다.",
-                    "오류",
+                    UIConstants.ERROR,
                     JOptionPane.ERROR_MESSAGE
             );
             return;
         }
 
+        // 모든 입력 필드가 비어있지 않은지 확인
+        for(JTextField inputField : inputFields) {
+            if(inputField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "모든 입력 칸에 값을 입력해야 합니다.",
+                        UIConstants.ERROR,
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+        }
+
         // 사용자 입력 값 수집
         String[] inputs = new String[wordLength];
         for(int i = 0; i < wordLength; i++) {
-            inputs[i] = inputFields[i].getText().trim();
+            String input = inputFields[i].getText().trim();
+
+            // 입력이 숫자 게임의 경우 숫자인지, 영어 게임의 경우 알파벳인지 확인
+            if (gameKind.equals(UIConstants.NUMBER) && !input.matches("[0-9]+")) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "숫자만 입력할 수 있습니다.",
+                        UIConstants.ERROR,
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            } else if (gameKind.equals(UIConstants.WORD) && !input.matches("[a-zA-Z]+")) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "영어 단어만 입력할 수 있습니다.",
+                        UIConstants.ERROR,
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            inputs[i] = input;  // 검증 통과한 입력을 배열에 저장
             inputFields[i].setText(""); // 입력칸 초기화
         }
 
