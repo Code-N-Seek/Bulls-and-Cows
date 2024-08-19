@@ -1,6 +1,7 @@
 package com.codenseek.bac.src;
 
 import com.codenseek.bac.src.util.UIConstants;
+import com.codenseek.bac.src.util.WordPicker;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -18,6 +19,8 @@ import java.awt.*;
 public class GameScreen extends JPanel {
     private String gameKind;    // 게임 진행 종류(숫자/영어단어)
     private int wordLength; // 게임에서 사용할 단어의 자릿수
+    private String answer;  // 정답
+    private JLabel boardLabel;  // 전광판
     private final JPanel inputPanel;    // 사용자 입력 패널
     private JTextField[] inputFields;   // 사용자 입력 필드 배열
     private final DefaultTableModel historyTableModel;  // 과거 입력 내역 테이블 모델
@@ -36,6 +39,7 @@ public class GameScreen extends JPanel {
     public void initGameSetting(String gameKind, int wordLength) {
         this.gameKind = gameKind;
         this.wordLength = wordLength;
+        this.answer = WordPicker.getRandomWord();
         setColumnNames();
         updateGameScreen();
     }
@@ -83,7 +87,7 @@ public class GameScreen extends JPanel {
         managePanel.add(hintButton, BorderLayout.WEST);
 
         // 전광판
-        JLabel boardLabel = new JLabel("");
+        boardLabel = new JLabel("");
         managePanel.add(boardLabel, BorderLayout.CENTER);
 
         // 시작/초기화 버튼
@@ -266,13 +270,36 @@ public class GameScreen extends JPanel {
             inputFields[i].setText(""); // 입력칸 초기화
         }
 
-        // TODO: 전광판 내용 적용 필요
-        String result = "1S 1B";
+        // 정답 체크
+        String result = checkAnswer(inputs);
+        boardLabel.setText(result);
 
         // 새로운 입력 내역을 과거 입력 내역에 추가
         String[] historyEntry = new String[wordLength + 1];
         System.arraycopy(inputs, 0, historyEntry, 0, wordLength);
         historyEntry[wordLength] = result;
         historyTableModel.addRow(historyEntry);
+    }
+
+    /**
+     * 사용자가 입력한 값 처리
+     * - 입력 값이 올바른지 확인하고, 결과를 과거 입력 내역에 추가
+     *
+     * @param inputWord 사용자 입력 단어
+     * @return 정답 비교 결과
+     *
+     * TODO: 정답 체크 로직 구현
+     */
+    private String checkAnswer(String[] inputWord) {
+        char s = ' ';
+        char b = ' ';
+
+        // 자리 일치 - Strike
+
+        // 자리만 불일치 - Ball
+
+        // 정답인 경우
+
+        return s + "S " + b + "B";
     }
 }
