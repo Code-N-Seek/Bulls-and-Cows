@@ -1,5 +1,8 @@
 package com.codenseek.bac.src;
 
+import com.codenseek.bac.src.util.Constants;
+import com.codenseek.bac.src.util.GameKind;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -20,7 +23,7 @@ public class EntryFrame extends JFrame {
      * - 화면 전환을 위한 레이아웃 구성
      */
     public EntryFrame() {
-        setTitle("Bulls and Cows");
+        setTitle(Constants.TITLE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 닫기 버튼 클릭 시 애플리케이션 종료
         setSize(350, 500);
         setLocationRelativeTo(null);    // 프레임을 화면 중앙에 위치시킴
@@ -62,7 +65,7 @@ public class EntryFrame extends JFrame {
      * @param gameKind 게임 종류
      * @param wordLength 게임에 사용될 단어의 길이
      */
-    public void startGame(String gameKind, int wordLength) {
+    public void startGame(GameKind gameKind, int wordLength) {
         gameScreen.initGameSetting(gameKind, wordLength);
         gameScreen.updateGameScreen();
         showScreen("gameScreen");

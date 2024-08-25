@@ -1,7 +1,9 @@
 package com.codenseek.bac.src;
 
 import com.codenseek.bac.src.util.GameKind;
-import com.codenseek.bac.src.util.UIConstants;
+import com.codenseek.bac.src.util.Constants;
+import com.codenseek.bac.src.util.MessageUtils;
+import com.codenseek.bac.src.util.Messages;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +32,7 @@ public class InitialScreen extends JPanel {
         // 패널
         JPanel gameKindPanel = new JPanel();
         gameKindPanel.setLayout(new BoxLayout(gameKindPanel, BoxLayout.Y_AXIS));
-        gameKindPanel.setBorder(UIConstants.COMMON_EMPTY_BORDER);
+        gameKindPanel.setBorder(Constants.COMMON_EMPTY_BORDER);
 
         // 레이블
         JLabel gameKindLabel = new JLabel("게임 종류를 선택하세요.", JLabel.CENTER);
@@ -52,7 +54,7 @@ public class InitialScreen extends JPanel {
         // 패널
         JPanel wordLengthPanel = new JPanel();
         wordLengthPanel.setLayout(new BoxLayout(wordLengthPanel, BoxLayout.Y_AXIS));
-        gameKindPanel.setBorder(UIConstants.COMMON_EMPTY_BORDER);
+        gameKindPanel.setBorder(Constants.COMMON_EMPTY_BORDER);
 
         // 레이블
         JLabel wordLengthLabel = new JLabel("자릿수를 입력하세요.(3~7)", JLabel.CENTER);
@@ -73,10 +75,10 @@ public class InitialScreen extends JPanel {
         // 패널
         JPanel confirmPanel = new JPanel();
         confirmPanel.setLayout(new BoxLayout(confirmPanel, BoxLayout.Y_AXIS));
-        confirmPanel.setBorder(UIConstants.COMMON_EMPTY_BORDER);
+        confirmPanel.setBorder(Constants.COMMON_EMPTY_BORDER);
 
         // 확인 버튼
-        JButton confirmButton = new JButton("확인");
+        JButton confirmButton = new JButton(Constants.CHECK);
         confirmButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(confirmButton);
 
@@ -86,35 +88,27 @@ public class InitialScreen extends JPanel {
                 GameKind gameKind = (GameKind) gameKindCombo.getSelectedItem();
 
                 if (Objects.isNull(gameKind)) {
-                    JOptionPane.showMessageDialog(
-                            frame,
-                            "게임 종류를 선택해 주세요.",
-                            UIConstants.ERROR,
-                            JOptionPane.ERROR_MESSAGE
-                    );
+                    MessageUtils.showErrorMessage(this, Messages.SELECT_GAME_KIND);
                     return; // 게임 종류가 선택되지 않은 경우 메서드 종료
                 }
 
+                // 자릿수 입력 여부
+                String wordLengthText = wordLengthField.getText();
+                if(wordLengthText.trim().isEmpty()) {
+                    MessageUtils.showErrorMessage(this, Messages.ERROR_EMPTY_LENGTH);
+                    return;
+                }
+
                 // 자릿수 판단
-                int wordLength = Integer.parseInt(wordLengthField.getText());
+                int wordLength = Integer.parseInt(wordLengthText);
                 if(wordLength < 3 || wordLength > 7) {
-                    JOptionPane.showMessageDialog(
-                            frame,
-                            "숫자/영어의 자릿수는 3~7 사이여야 합니다.",
-                            UIConstants.ERROR,
-                            JOptionPane.ERROR_MESSAGE
-                    );
+                    MessageUtils.showErrorMessage(this, Messages.INVALID_WORD_LENGTH);
                 } else {
-                    frame.startGame(gameKind.getValue(), wordLength);
+                    frame.startGame(gameKind, wordLength);
                 }
             } catch (NumberFormatException ex) {
                 // 숫자가 아닌 값을 입력한 경우 경고 메시지를 출력
-                JOptionPane.showMessageDialog(
-                        frame,
-                        "숫자만 입력 가능합니다.",
-                        UIConstants.ERROR,
-                        JOptionPane.ERROR_MESSAGE
-                );
+                MessageUtils.showErrorMessage(this, Messages.ERROR_ONLY_NUMBERS);
             }
         });
     }

@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum GameKind {
-    NUMBER("숫자"),
-    WORD("영어단어");
+    NUMBER(Constants.NUMBER),
+    WORD(Constants.WORD);
 
     /**
      * 게임 종류를 설명하는 문자열 값

@@ -1,6 +1,6 @@
 package com.codenseek.bac.src;
 
-import com.codenseek.bac.src.util.UIConstants;
+import com.codenseek.bac.src.util.Constants;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,14 +21,14 @@ public class MainMenuScreen extends JPanel {
         setLayout(new BorderLayout());
 
         // 게임 타이틀을 표시하는 레이블
-        JLabel titleLabel = new JLabel("BULLS AND COWS", JLabel.CENTER);
+        JLabel titleLabel = new JLabel(Constants.TITLE, JLabel.CENTER);
         titleLabel.setFont(new Font("Times", Font.BOLD, 24));
-        titleLabel.setBorder(UIConstants.COMMON_EMPTY_BORDER);
+        titleLabel.setBorder(Constants.COMMON_EMPTY_BORDER);
         add(titleLabel, BorderLayout.NORTH);
 
         // 게임 시작 버튼
         JButton startButton = new JButton("게임 시작");
-        startButton.setBorder(UIConstants.COMMON_EMPTY_BORDER);
+        startButton.setBorder(Constants.COMMON_EMPTY_BORDER);
         add(startButton, BorderLayout.CENTER);
 
         startButton.addActionListener(e -> frame.showScreen("initialScreen"));
