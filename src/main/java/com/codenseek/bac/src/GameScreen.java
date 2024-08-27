@@ -9,13 +9,15 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 숫자야구 게임의 실제 게임 진행 화면 구현 클래스
  * - 게임의 입력 필드, 힌트 버튼, 과거 입력 내역 관리
  * - 게임의 시작/초기화 기능 제공
  *
- * TODO: hint, 뒤로가기, 남은 시도 횟수, 사용자 입력시 한개씩만 입력가능하도록 이벤트 핸들러 설정, 기록내역 오름차순 출력
+ * TODO: 뒤로가기, 남은 시도 횟수, 사용자 입력시 한개씩만 입력가능하도록 이벤트 핸들러 설정, 기록내역 오름차순 출력
  */
 public class GameScreen extends JPanel {
     private GameKind gameKind;    // 게임 진행 종류(숫자/영어단어)
@@ -30,7 +32,10 @@ public class GameScreen extends JPanel {
     private final JButton checkButton; // 확인 버튼
     private boolean isGameStarted = false;  // 게임 시작 여부
     private int attemptCount = 0;   // 시도 횟수
-    private static final int MAX_ATTEMPTS = 9;  // 최대 시도 횟수
+    private static final int MAX_ATTEMPT_COUNT = 9;  // 최대 시도 횟수
+    private final JButton hintButton;   // 힌트 버튼
+    private int hintCount;  // 힌트 갯수
+    private static final int DEFAULT_HINT_COUNT = 1;    // 기본 힌트 갯수
 
 
     /**
@@ -44,6 +49,7 @@ public class GameScreen extends JPanel {
         this.wordLength = wordLength;
         this.answer = AnswerPicker.getRandomAnswer(gameKind, wordLength);
         attemptCount = 0;
+        //hintCount = DEFAULT_HINT_COUNT;
         setColumnNames();
         updateGameScreen();
     }
@@ -51,7 +57,7 @@ public class GameScreen extends JPanel {
     /**
      * 테이블의 열 이름 설정
      */
-    public void setColumnNames() {
+    private void setColumnNames() {
         // 컬럼 이름 설정
         columnNames = new String[wordLength + 2];
         columnNames[0] = "입력횟수";
@@ -91,9 +97,12 @@ public class GameScreen extends JPanel {
         managePanel.setBorder(new EmptyBorder(20, 10, 10, 10));
 
         // 힌트 버튼
-        JButton hintButton = new JButton(Constants.HINT);
-        hintButton.setPreferredSize(buttonSize);
+        hintButton = new JButton(getHintButtonName());
+        hintButton.setEnabled(false);
+        hintButton.setPreferredSize(new Dimension(120, 30));
         managePanel.add(hintButton, BorderLayout.WEST);
+
+        hintButton.addActionListener(e -> provideHint());
 
         // 전광판
         boardLabel = new JLabel("");
@@ -150,6 +159,52 @@ public class GameScreen extends JPanel {
         add(historyPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * 힌트 버튼 이름 가져오기
+     *
+     * @return 현재 남은 힌트 개수를 포함한 힌트 버튼 이름
+     */
+    private String getHintButtonName() {
+        return "남은 힌트 : " + hintCount;
+    }
+
+    /**
+     * 힌트 갯수 설정
+     */
+    private void setHintCount() {
+        //hintCount = wordLength > 5 ? 3 : wordLength > 3 ? 2 : 1;
+        hintCount = DEFAULT_HINT_COUNT;
+    }
+
+    /**
+     * 사용자에게 힌트를 제공하는 메서드
+     * - 힌트 메시지를 생성하여 알림으로 표시하고, 남은 힌트 개수를 업데이트
+     * - 힌트가 모두 소진되면 버튼을 비활성화
+     */
+    private void provideHint() {
+        String msg = "힌트 : 같은 " + gameKind.getValue() + "이/가 존재";
+        Set<String> answers = new HashSet<>();
+        for(char c : answer.toCharArray()) {
+            answers.add(String.valueOf(c));
+        }
+        msg += (answer.length() != answers.size()) ? "합니다." : "하지 않습니다.";
+        MessageUtils.showNotificationMessage(this, msg);
+
+        hintCount--;
+        hintButton.setText(getHintButtonName());
+
+        if(hintCount == 0) {
+            hintButton.setEnabled(false);
+        }
+    }
+
+    /**
+     * 과거 입력 내역을 보여주는 JTable 객체를 생성하여 반환
+     * - 테이블의 열 너비 설정 및 각 열의 내용 가운데 정렬
+     * - 테이블의 크기 및 스크롤 설정
+     *
+     * @return 과거 입력 내역을 보여주는 JTable 객체
+     */
     private JTable getTable() {
         JTable historyTable = new JTable(historyTableModel);
 
@@ -168,7 +223,7 @@ public class GameScreen extends JPanel {
         // 테이블 크기 설정 (행당 높이 * 최대 입력 횟수, 열당 너비 합계)
         int rowHeight = historyTable.getRowHeight(); // 기본 행 높이
         int tableWidth = historyTable.getPreferredSize().width; // 열 너비 합계
-        int tableHeight = rowHeight * MAX_ATTEMPTS;
+        int tableHeight = rowHeight * MAX_ATTEMPT_COUNT;
 
         // 과거 입력 내역 테이블을 스크롤 가능하도록 설정
         historyTable.setPreferredSize(new Dimension(tableWidth, tableHeight));
@@ -189,7 +244,10 @@ public class GameScreen extends JPanel {
         isGameStarted = true;
 
         setFieldsEnabled(true);
+        setHintCount(); // hint 갯수 초기화
         checkButton.setEnabled(true);
+        hintButton.setText(getHintButtonName());
+        hintButton.setEnabled(true);
     }
 
     /**
@@ -202,6 +260,7 @@ public class GameScreen extends JPanel {
 
         setFieldsEnabled(false);  // 입력 필드 비활성화
         checkButton.setEnabled(false);  // 확인 버튼 비활성화
+        hintButton.setEnabled(false);   // 힌트 버튼 비활성화
     }
 
     /**
@@ -214,6 +273,7 @@ public class GameScreen extends JPanel {
 
         setFieldsEnabled(false);
         checkButton.setEnabled(false);
+        hintButton.setEnabled(false);
 
         initGameSetting(gameKind, wordLength);
         startGame();
@@ -295,7 +355,7 @@ public class GameScreen extends JPanel {
 
         // 시도 횟수 증가 및 체크
         attemptCount++;
-        if (attemptCount >= MAX_ATTEMPTS) {
+        if (attemptCount >= MAX_ATTEMPT_COUNT) {
             MessageUtils.showNotificationMessage(this, Messages.GAME_OVER);
             boardLabel.setText(Constants.CORRECT_ANSWER + ": " + answer);
             endGame();
@@ -311,13 +371,11 @@ public class GameScreen extends JPanel {
 
         // 새로운 입력 내역을 과거 입력 내역에 추가
         String[] historyEntry = new String[wordLength + 2];
-        historyEntry[0] = String.valueOf(attemptCount + "회"); // 첫 번째 요소에 attemptCount 값 추가
+        historyEntry[0] = attemptCount + "회"; // 첫 번째 요소에 attemptCount 값 추가
         System.arraycopy(inputs, 0, historyEntry, 1, wordLength);
         historyEntry[wordLength + 1] = result;
         historyTableModel.addRow(historyEntry);
     }
-
-
 
     /**
      * 사용자가 입력한 값 처리
