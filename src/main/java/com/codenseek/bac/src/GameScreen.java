@@ -1,24 +1,30 @@
 package com.codenseek.bac.src;
 
 import com.codenseek.bac.src.util.*;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+
+import static com.codenseek.bac.src.util.MessageUtils.showErrorMessage;
+import static com.codenseek.bac.src.util.MessageUtils.showNotificationMessage;
 
 /**
  * 숫자야구 게임의 실제 게임 진행 화면 구현 클래스
- * - 게임의 입력 필드, 힌트 버튼, 과거 입력 내역 관리
+ * - 게임 입력 필드, 힌트 버튼, 과거 입력 내역 관리
  * - 게임의 시작/초기화 기능 제공
  *
- * TODO: 뒤로가기, 남은 시도 횟수, 사용자 입력시 한개씩만 입력가능하도록 이벤트 핸들러 설정, 기록내역 오름차순 출력
+ * TODO: 뒤로가기, 남은 시도 횟수, 테이블 데이터 행과 헤더 행 어긋나는 문제 해결
  */
+@Slf4j
 public class GameScreen extends JPanel {
     private GameKind gameKind;    // 게임 진행 종류(숫자/영어단어)
     private int wordLength; // 게임에서 사용할 단어의 자릿수
@@ -27,6 +33,7 @@ public class GameScreen extends JPanel {
     private final JPanel inputPanel;    // 사용자 입력 패널
     private JTextField[] inputFields;   // 사용자 입력 필드 배열
     private final DefaultTableModel historyTableModel;  // 과거 입력 내역 테이블 모델
+    private final JTable historyTable;    // 과거 입력 내역 테이블
     private String[] columnNames;   // 테이블의 열 이름 배열
     private final JButton startResetButton; // 게임 시작/초기화 버튼
     private final JButton checkButton; // 확인 버튼
@@ -49,7 +56,6 @@ public class GameScreen extends JPanel {
         this.wordLength = wordLength;
         this.answer = AnswerPicker.getRandomAnswer(gameKind, wordLength);
         attemptCount = 0;
-        //hintCount = DEFAULT_HINT_COUNT;
         setColumnNames();
         updateGameScreen();
     }
@@ -78,9 +84,6 @@ public class GameScreen extends JPanel {
     public GameScreen(EntryFrame frame) {
         setLayout(new BorderLayout());
 
-        // 버튼 공통 크기 설정
-        Dimension buttonSize = new Dimension(80, 30); // 원하는 크기로 설정
-
         /**
          * 상단 패널 설정
          */
@@ -99,18 +102,19 @@ public class GameScreen extends JPanel {
         // 힌트 버튼
         hintButton = new JButton(getHintButtonName());
         hintButton.setEnabled(false);
-        hintButton.setPreferredSize(new Dimension(120, 30));
+        hintButton.setPreferredSize(new Dimension(105, 30));
         managePanel.add(hintButton, BorderLayout.WEST);
 
         hintButton.addActionListener(e -> provideHint());
 
         // 전광판
         boardLabel = new JLabel("");
+        boardLabel.setHorizontalAlignment(SwingConstants.CENTER);
         managePanel.add(boardLabel, BorderLayout.CENTER);
 
         // 시작/초기화 버튼
         startResetButton = new JButton(Constants.START);
-        startResetButton.setPreferredSize(buttonSize);
+        startResetButton.setPreferredSize(Constants.buttonSize);
         managePanel.add(startResetButton, BorderLayout.EAST);
 
         startResetButton.addActionListener(e -> {
@@ -136,10 +140,12 @@ public class GameScreen extends JPanel {
         submitPanel.add(inputPanel, BorderLayout.CENTER);
 
         // 확인 버튼
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         checkButton = new JButton(Constants.CHECK);
         checkButton.setEnabled(false);
-        checkButton.setPreferredSize(buttonSize);  // 동일한 크기 적용
-        submitPanel.add(checkButton, BorderLayout.EAST);
+        checkButton.setPreferredSize(Constants.buttonSize);  // 동일한 크기 적용
+        buttonPanel.add(checkButton);
+        submitPanel.add(buttonPanel, BorderLayout.EAST);
 
         checkButton.addActionListener(e -> handleUserInput());
 
@@ -153,7 +159,7 @@ public class GameScreen extends JPanel {
 
         // 과거 입력 내역 테이블
         historyTableModel = new DefaultTableModel(columnNames, 0);
-        JTable historyTable = getTable();
+        historyTable = getTable();
         historyPanel.add(historyTable.getTableHeader(), BorderLayout.NORTH);
         historyPanel.add(historyTable, BorderLayout.CENTER);
         add(historyPanel, BorderLayout.SOUTH);
@@ -188,7 +194,7 @@ public class GameScreen extends JPanel {
             answers.add(String.valueOf(c));
         }
         msg += (answer.length() != answers.size()) ? "합니다." : "하지 않습니다.";
-        MessageUtils.showNotificationMessage(this, msg);
+        showNotificationMessage(this, msg);
 
         hintCount--;
         hintButton.setText(getHintButtonName());
@@ -216,7 +222,12 @@ public class GameScreen extends JPanel {
         TableColumnModel columnModel = historyTable.getColumnModel();
         for(int i = 0; i < columnModel.getColumnCount(); i++) {
             TableColumn column = columnModel.getColumn(i);
-            column.setPreferredWidth(50);
+            if(i > 0 && i < columnModel.getColumnCount() - 1) {
+                column.setWidth(5);
+            } else {
+                column.setWidth(30);
+            }
+            //column.setResizable(false); // 열의 크기를 변경하지 못하도록 설정
             column.setCellRenderer(centerRenderer);
         }
 
@@ -285,7 +296,7 @@ public class GameScreen extends JPanel {
      * @param enabled 입력 필드 활성화 여부
      */
     private void setFieldsEnabled(boolean enabled) {
-        if (inputFields != null) {
+        if (Objects.nonNull(inputFields)) {
             for (JTextField inputField : inputFields) {
                 inputField.setEnabled(enabled);
             }
@@ -303,6 +314,23 @@ public class GameScreen extends JPanel {
         for(int i = 0; i < wordLength; i++) {
             JTextField input = new JTextField(2);
             input.setEnabled(false);
+
+            // 텍스트 가운데 정렬
+            input.setHorizontalAlignment(JTextField.CENTER);
+
+            // 한 자릿수만 입력 가능하도록 필터 설정
+            DocumentFilter filter = null;
+            if(gameKind.equals(GameKind.NUMBER)) {
+                filter = new InputFilters.OneDigitFilter();
+            }
+            if(gameKind.equals(GameKind.WORD)) {
+                filter = new InputFilters.OneWordFilter();
+            }
+
+            if(Objects.nonNull(filter)) {
+                ((AbstractDocument) input.getDocument()).setDocumentFilter(filter);
+            }
+
             inputFields[i] = input;
 
             inputPanel.add(input);
@@ -312,6 +340,10 @@ public class GameScreen extends JPanel {
 
         // 과거 입력 내역 테이블 초기화
         historyTableModel.setRowCount(0);
+
+        // 헤더 병합을 위한 커스텀 렌더러 설정
+        JTableHeader header = historyTable.getTableHeader();
+        header.setDefaultRenderer(new MergedHeaderRenderer());
     }
 
     /**
@@ -319,15 +351,15 @@ public class GameScreen extends JPanel {
      * - 입력 값이 올바른지 확인하고, 결과를 과거 입력 내역에 추가
      */
     private void handleUserInput() {
-        if(inputFields == null || inputFields.length != wordLength) {
-            MessageUtils.showErrorMessage(this, Messages.ERROR_INPUT_NOT_INITIALIZED);
+        if(Objects.isNull(inputFields) || inputFields.length != wordLength) {
+            showErrorMessage(this, Messages.ERROR_INPUT_NOT_INITIALIZED);
             return;
         }
 
         // 모든 입력 필드가 비어있지 않은지 확인
         for(JTextField inputField : inputFields) {
             if(inputField.getText().trim().isEmpty()) {
-                MessageUtils.showErrorMessage(this, Messages.ERROR_EMPTY_FIELDS);
+                showErrorMessage(this, Messages.ERROR_EMPTY_FIELDS);
                 return;
             }
         }
@@ -338,16 +370,17 @@ public class GameScreen extends JPanel {
             String input = inputFields[i].getText().trim();
 
             // 입력이 숫자 게임의 경우 숫자인지, 영어 게임의 경우 알파벳인지 확인
-            if (Constants.NUMBER.equals(gameKind.name()) && !input.matches("[0-9]+")) {
-                MessageUtils.showErrorMessage(this, Messages.ERROR_ONLY_NUMBERS);
-                return;
-            } else if (Constants.WORD.equals(gameKind.name()) && !input.matches("[a-zA-Z]+")) {
-                MessageUtils.showErrorMessage(this, Messages.ERROR_ONLY_LETTERS);
+            String pattern = gameKind.equals(GameKind.NUMBER) ? "[0-9]+" : "[a-zA-Z]+";
+            String errorMessage = gameKind.equals(GameKind.NUMBER) ?
+                    Messages.ERROR_ONLY_NUMBERS : Messages.ERROR_ONLY_LETTERS;
+
+            if (!input.matches(pattern)) {
+                showErrorMessage(this, errorMessage);
+                clearInputFields();
                 return;
             }
 
             inputs[i] = input;  // 검증 통과한 입력을 배열에 저장
-            inputFields[i].setText(""); // 입력칸 초기화
         }
 
         // 정답 체크
@@ -356,14 +389,14 @@ public class GameScreen extends JPanel {
         // 시도 횟수 증가 및 체크
         attemptCount++;
         if (attemptCount >= MAX_ATTEMPT_COUNT) {
-            MessageUtils.showNotificationMessage(this, Messages.GAME_OVER);
+            showNotificationMessage(this, Messages.GAME_OVER);
             boardLabel.setText(Constants.CORRECT_ANSWER + ": " + answer);
             endGame();
             return;
         }
 
         if (result.equals(Constants.CORRECT_ANSWER)) {
-            MessageUtils.showNotificationMessage(this, Messages.CORRECT_ANSWER);
+            showNotificationMessage(this, Messages.CORRECT_ANSWER);
             endGame();
         } else {
             boardLabel.setText(result);
@@ -374,7 +407,29 @@ public class GameScreen extends JPanel {
         historyEntry[0] = attemptCount + "회"; // 첫 번째 요소에 attemptCount 값 추가
         System.arraycopy(inputs, 0, historyEntry, 1, wordLength);
         historyEntry[wordLength + 1] = result;
-        historyTableModel.addRow(historyEntry);
+        historyTableModel.insertRow(0, historyEntry);
+
+        clearInputFields();
+    }
+
+    /**
+     * 입력 필드 배열에 있는 모든 JTextField의 텍스트 제거
+     * - 각 JTextField의 Document에서 직접 텍스트 제거
+     */
+    private void clearInputFields() {
+        for (JTextField inputField : inputFields) {
+            AbstractDocument doc = (AbstractDocument) inputField.getDocument();
+            try {
+                /**
+                 * Document의 모든 텍스트 제거
+                 *
+                 * @throws BadLocationException 텍스트 제거가 잘못된 위치에서 시도된 경우 발생
+                 */
+                doc.remove(0, doc.getLength());
+            } catch (BadLocationException e) {
+                log.error("Error while clearing text field", e);
+            }
+        }
     }
 
     /**
@@ -420,5 +475,44 @@ public class GameScreen extends JPanel {
             return Constants.CORRECT_ANSWER;
         }
         return sCnt + "S " + bCnt + "B";
+    }
+}
+
+/**
+ * 테이블 헤더 셀을 병합하고 서식을 지정하기 위한 커스텀 렌더러
+ */
+class MergedHeaderRenderer extends DefaultTableCellRenderer {
+    /**
+     * JTableHeader에서 셀을 그리는 데 사용되는 컴포넌트 반환
+     * - 텍스트 가운데 정렬, 굵은 글꼴 적용, 열 인덱스에 따라 조건부로 셀을 병합
+     *
+     * @param table     렌더러에게 그리기를 요청하는 JTable
+     * @param value     렌더링할 셀의 값
+     * @param isSelected 셀이 선택 강조 표시된 상태에서 렌더링되어야 하면 true, 그렇지 않으면 false
+     * @param hasFocus   true이면 셀에 포커스가 있음을 나타내는 방식으로 렌더링
+     * @param row       그려지는 셀의 행 인덱스. 헤더를 그릴 때는 row의 값이 -1
+     * @param column    그려지는 셀의 열 인덱스
+     * @return          셀을 그리는 데 사용되는 컴포넌트 반환
+     */
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+                                                   boolean isSelected, boolean hasFocus, int row, int column) {
+        // 텍스트를 수평 및 수직으로 가운데 정렬
+        setHorizontalAlignment(CENTER);
+        setVerticalAlignment(CENTER);
+
+        // 헤더 텍스트에 굵은 글꼴을 적용합니다.
+        setFont(getFont().deriveFont(Font.BOLD));
+
+        // 특정 열(1 ~ 3)에 대해 헤더 렌더링 사용자 지정
+        if (column >= 1 && column <= 3) {
+            setText(column == 2 ? "입력" : "");
+            setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, table.getGridColor()));
+        } else {
+            setText(Objects.nonNull(value) ? value.toString() : "");
+            setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, table.getGridColor()));
+        }
+
+        return this;
     }
 }

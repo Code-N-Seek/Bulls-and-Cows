@@ -1,15 +1,21 @@
 package com.codenseek.bac.src.util;
 
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 /**
  * UI 공통 사용 상수 모음 클래스
  */
 public class Constants {
     /**
-     * UI 요소들 간의 일정한 공백을 유지하기 위한 여백(Border) 상수
+     * UI 요소들 간의 일정한 공백을 유지하기 위한 여백(Border)
      */
     public static final EmptyBorder COMMON_EMPTY_BORDER = new EmptyBorder(10, 10, 10, 10);
+
+    /**
+     * 버튼 공통 크기 설정
+     */
+    public static final Dimension buttonSize = new Dimension(80, 30); // 원하는 크기로 설정
 
     public static final String TITLE = "BULLS AND COWS";
 
