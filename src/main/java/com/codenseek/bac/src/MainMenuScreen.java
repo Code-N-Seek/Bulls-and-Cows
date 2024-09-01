@@ -1,6 +1,7 @@
 package com.codenseek.bac.src;
 
 import com.codenseek.bac.src.util.Constants;
+import static com.codenseek.bac.src.util.GbcUtils.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,18 +19,27 @@ public class MainMenuScreen extends JPanel {
      * @param frame EntryFrame 객체
      */
     public MainMenuScreen(EntryFrame frame) {
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = createDefaultGbc();
+        configureGbcWithPadding(gbc, 15);
+        gbc.weightx = 1.0;
 
-        // 게임 타이틀을 표시하는 레이블
-        JLabel titleLabel = new JLabel(Constants.TITLE, JLabel.CENTER);
+        // 게임 타이틀 레이블 설정
+        JLabel titleLabel = new JLabel(Constants.TITLE);
         titleLabel.setFont(new Font("Times", Font.BOLD, 24));
-        titleLabel.setBorder(Constants.COMMON_EMPTY_BORDER);
-        add(titleLabel, BorderLayout.NORTH);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // 게임 시작 버튼
+        // 타이틀 레이블을 중앙 위쪽에 배치
+        gbc.gridy = 0;
+        add(titleLabel, gbc);
+
+        // 게임 시작 버튼 설정
         JButton startButton = new JButton("게임 시작");
-        startButton.setBorder(Constants.COMMON_EMPTY_BORDER);
-        add(startButton, BorderLayout.CENTER);
+        startButton.setPreferredSize(new Dimension(90, 30));
+
+        // 게임 시작 버튼을 타이틀 바로 아래에 배치
+        gbc.gridy = 1;
+        add(startButton, gbc);
 
         startButton.addActionListener(e -> frame.showScreen("initialScreen"));
     }
