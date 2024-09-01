@@ -25,8 +25,9 @@ public class EntryFrame extends JFrame {
     public EntryFrame() {
         setTitle(Constants.TITLE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 닫기 버튼 클릭 시 애플리케이션 종료
-        setSize(350, 500);
+        setSize(350, 420);
         setLocationRelativeTo(null);    // 프레임을 화면 중앙에 위치시킴
+        setResizable(false);            // 창 크기를 고정시킴
 
         cardLayout = new CardLayout();
         contentPane = getContentPane();
