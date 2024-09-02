@@ -1,5 +1,9 @@
-package com.codenseek.bac.src.util;
+package com.codenseek.bac.src.message;
 
+/**
+ * 게임에서 사용되는 다양한 문자열 메시지를 상수로 포함하는 클래스
+ * - 게임 선택에 대한 프롬프트, 오류 알림, 결과 메시지 포함
+ */
 public class Messages {
     public static final String SELECT_GAME_KIND = "게임 종류를 선택해 주세요.";
     public static final String ERROR_EMPTY_LENGTH = "값을 입력해주세요.";

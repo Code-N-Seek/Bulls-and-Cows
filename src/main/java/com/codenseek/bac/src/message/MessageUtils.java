@@ -1,4 +1,6 @@
-package com.codenseek.bac.src.util;
+package com.codenseek.bac.src.message;
+
+import com.codenseek.bac.src.util.Constants;
 
 import javax.swing.*;
 import java.awt.*;

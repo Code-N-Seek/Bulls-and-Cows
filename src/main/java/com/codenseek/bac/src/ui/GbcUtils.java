@@ -1,4 +1,4 @@
-package com.codenseek.bac.src.util;
+package com.codenseek.bac.src.ui;
 
 import lombok.Getter;
 import lombok.Setter;
