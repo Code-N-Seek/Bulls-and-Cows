@@ -1,10 +1,14 @@
 package com.codenseek.bac.src;
 
-import com.codenseek.bac.src.util.Constants;
-import static com.codenseek.bac.src.util.GbcUtils.*;
+import com.codenseek.bac.src.config.ConfigLoader;
+import com.codenseek.bac.src.ui.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
+
+import static com.codenseek.bac.src.ui.GbcUtils.configureGbcWithPadding;
+import static com.codenseek.bac.src.ui.GbcUtils.createDefaultGbc;
 
 
 /**
@@ -24,10 +28,12 @@ public class MainMenuScreen extends JPanel {
         configureGbcWithPadding(gbc, 15);
         gbc.weightx = 1.0;
 
-        // 게임 타이틀 레이블 설정
-        JLabel titleLabel = new JLabel(Constants.TITLE);
-        titleLabel.setFont(new Font("Times", Font.BOLD, 24));
+        // 게임 타이틀 설정(로고)
+        JLabel titleLabel = new JLabel();
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        String imagePath = Objects.requireNonNull(ConfigLoader.loadProperties("message")).getProperty("image.path");
+        ImageIcon titleIcon = ImageUtils.loadAndScaleImage(imagePath, null, null);
+        titleLabel.setIcon(titleIcon); // 크기 조정된 이미지를 JLabel에 설정
 
         // 타이틀 레이블을 중앙 위쪽에 배치
         gbc.gridy = 0;

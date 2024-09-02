@@ -1,9 +1,12 @@
 package com.codenseek.bac.src;
 
+import com.codenseek.bac.src.ui.FontLoader;
+import com.codenseek.bac.src.ui.UIManagerUtils;
 import com.codenseek.bac.src.util.Constants;
 import com.codenseek.bac.src.util.GameKind;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 
 
@@ -23,9 +26,16 @@ public class EntryFrame extends JFrame {
      * - 화면 전환을 위한 레이아웃 구성
      */
     public EntryFrame() {
+        // 폰트 설정
+        FontLoader fontLoader = new FontLoader("/fonts/Binggrae.ttf", 12);
+        FontLoader.setUIFont(new FontUIResource(fontLoader.getCustomFont()));
+
+        // UI 테마 설정
+        UIManagerUtils.setTheme();
+
         setTitle(Constants.TITLE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 닫기 버튼 클릭 시 애플리케이션 종료
-        setSize(350, 420);
+        setSize(350, 550);
         setLocationRelativeTo(null);    // 프레임을 화면 중앙에 위치시킴
         setResizable(false);            // 창 크기를 고정시킴
 

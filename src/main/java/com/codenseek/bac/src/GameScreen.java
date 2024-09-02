@@ -1,5 +1,9 @@
 package com.codenseek.bac.src;
 
+import com.codenseek.bac.src.config.ConfigLoader;
+import com.codenseek.bac.src.util.InputFilters;
+import com.codenseek.bac.src.message.Messages;
+import com.codenseek.bac.src.ui.ImageUtils;
 import com.codenseek.bac.src.util.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,15 +18,15 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.codenseek.bac.src.util.MessageUtils.showErrorMessage;
-import static com.codenseek.bac.src.util.MessageUtils.showNotificationMessage;
+import static com.codenseek.bac.src.message.MessageUtils.showErrorMessage;
+import static com.codenseek.bac.src.message.MessageUtils.showNotificationMessage;
 
 /**
  * 숫자야구 게임의 실제 게임 진행 화면 구현 클래스
  * - 게임 입력 필드, 힌트 버튼, 과거 입력 내역 관리
  * - 게임의 시작/초기화 기능 제공
  *
- * TODO: 뒤로가기, 남은 시도 횟수, 테이블 데이터 행과 헤더 행 어긋나는 문제 해결
+ * TODO: 뒤로가기, 남은 시도 횟수, 테이블 데이터 행과 헤더 행 어긋나는 문제 해결, 순위(기록)
  */
 @Slf4j
 public class GameScreen extends JPanel {
@@ -90,11 +94,13 @@ public class GameScreen extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(Constants.COMMON_EMPTY_BORDER);
 
-        // 제목
-        JLabel label = new JLabel(Constants.TITLE, JLabel.CENTER);
-        label.setFont(new Font("Times", Font.BOLD, 24));
-        label.setBorder(Constants.COMMON_EMPTY_BORDER);
-        topPanel.add(label, BorderLayout.NORTH);
+        // 게임 타이틀 설정(로고)
+        JLabel titleLabel = new JLabel();
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        String imagePath = Objects.requireNonNull(ConfigLoader.loadProperties("message")).getProperty("image.path");
+        ImageIcon titleIcon = ImageUtils.loadAndScaleImage(imagePath, 336, 192);
+        titleLabel.setIcon(titleIcon); // 크기 조정된 이미지를 JLabel에 설정
+        topPanel.add(titleLabel, BorderLayout.NORTH);
 
         JPanel managePanel = new JPanel(new BorderLayout());
         managePanel.setBorder(new EmptyBorder(20, 10, 10, 10));
@@ -102,7 +108,7 @@ public class GameScreen extends JPanel {
         // 힌트 버튼
         hintButton = new JButton(getHintButtonName());
         hintButton.setEnabled(false);
-        hintButton.setPreferredSize(new Dimension(105, 30));
+        hintButton.setPreferredSize(new Dimension(110, 30));
         managePanel.add(hintButton, BorderLayout.WEST);
 
         hintButton.addActionListener(e -> provideHint());
@@ -503,6 +509,9 @@ class MergedHeaderRenderer extends DefaultTableCellRenderer {
 
         // 헤더 텍스트에 굵은 글꼴을 적용합니다.
         setFont(getFont().deriveFont(Font.BOLD));
+
+        // 헤더 배경색 설정
+        setBackground(Constants.THEME_COLOR_YELLOW);
 
         // 특정 열(1 ~ 3)에 대해 헤더 렌더링 사용자 지정
         if (column >= 1 && column <= 3) {

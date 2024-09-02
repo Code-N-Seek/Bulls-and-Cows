@@ -1,9 +1,11 @@
 package com.codenseek.bac.src;
 
+import com.codenseek.bac.src.util.InputFilters;
+import com.codenseek.bac.src.message.Messages;
 import com.codenseek.bac.src.util.*;
 
-import static com.codenseek.bac.src.util.MessageUtils.*;
-import static com.codenseek.bac.src.util.GbcUtils.*;
+import static com.codenseek.bac.src.message.MessageUtils.*;
+import static com.codenseek.bac.src.ui.GbcUtils.*;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
@@ -42,6 +44,7 @@ public class InitialScreen extends JPanel {
         // 콤보박스(숫자/영어단어)
         gameKindCombo = new JComboBox<>(GameKind.values());
         gameKindCombo.setPreferredSize(new Dimension(80, 25));  // 크기 조절
+        gameKindCombo.setBackground(Color.WHITE);
         // 텍스트 가운데 정렬 설정
         ((JLabel)gameKindCombo.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridy = 1;

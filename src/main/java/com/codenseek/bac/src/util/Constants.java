@@ -17,6 +17,16 @@ public class Constants {
      */
     public static final Dimension buttonSize = new Dimension(80, 30); // 원하는 크기로 설정
 
+    /**
+     * 버튼 공통 색상 설정
+     */
+    public static final Color THEME_COLOR_NAVY = new Color(46, 51, 67);
+
+    public static final Color THEME_COLOR_YELLOW = new Color(253, 227, 87);
+
+    /**
+     * TEXT 모음
+     */
     public static final String TITLE = "BULLS AND COWS";
 
     public static final String NUMBER = "숫자";
