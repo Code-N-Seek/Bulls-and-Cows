@@ -12,6 +12,18 @@ import java.awt.*;
  */
 public class UIManagerUtils {
     /**
+     * 버튼 스타일 속성 초기화
+     *
+     * @param button 버튼
+     */
+    public static void initButtonProperties(JButton button) {
+        button.setText("");                  // 텍스트 제거
+        button.setContentAreaFilled(false);  // 배경 채우기 제거
+        button.setBorderPainted(false);      // 테두리 제거
+        button.setFocusPainted(false);       // 포커스 표시 제거
+    }
+
+    /**
      * 버튼의 스타일 속성 설정
      */
     public static void setButtonProperties() {

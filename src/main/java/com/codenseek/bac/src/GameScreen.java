@@ -1,6 +1,7 @@
 package com.codenseek.bac.src;
 
-import com.codenseek.bac.src.config.ConfigLoader;
+import com.codenseek.bac.src.config.PropertyManager;
+import com.codenseek.bac.src.ui.UIManagerUtils;
 import com.codenseek.bac.src.util.InputFilters;
 import com.codenseek.bac.src.message.Messages;
 import com.codenseek.bac.src.ui.ImageUtils;
@@ -88,17 +89,50 @@ public class GameScreen extends JPanel {
     public GameScreen(EntryFrame frame) {
         setLayout(new BorderLayout());
 
+        // 상단 영역을 위한 메인 패널 생성
+        JPanel combinedTopPanel = new JPanel(new BorderLayout());
+
+        /**
+         * 사이드바 패널 설정(뒤로가기, 설정)
+         */
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBorder(new EmptyBorder(3, 0, 3, 0));
+
+        // TODO : 뒤로가기 이벤트 핸들러 구현
+        JButton previousButton = new JButton();
+        String previousImagePath = ImageUtils.getImagePath( "previous");
+        ImageIcon previousIcon = ImageUtils.loadAndScaleImage(previousImagePath, Constants.ICON_WIDTH, Constants.ICON_HEIGHT);
+        previousButton.setIcon(previousIcon);
+
+        UIManagerUtils.initButtonProperties(previousButton);
+        previousButton.addActionListener(e -> provideHint());
+
+        headerPanel.add(previousButton, BorderLayout.WEST);
+
+        // TODO : 설정버튼 이벤트 핸들러 구현
+        JButton settingButton = new JButton();
+        String settingImagePath = ImageUtils.getImagePath("setting");
+        ImageIcon settingIcon =  ImageUtils.loadAndScaleImage(settingImagePath, Constants.ICON_WIDTH, Constants.ICON_HEIGHT);
+        settingButton.setIcon(settingIcon);
+        UIManagerUtils.initButtonProperties(settingButton);
+        settingButton.addActionListener(e -> provideHint());
+
+        headerPanel.add(settingButton, BorderLayout.EAST);
+
+        // headerPanel을 combinedTopPanel에 추가
+        combinedTopPanel.add(headerPanel, BorderLayout.NORTH);
+
         /**
          * 상단 패널 설정
          */
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBorder(Constants.COMMON_EMPTY_BORDER);
+        topPanel.setBorder(new EmptyBorder(5, 10, 10, 10));
 
         // 게임 타이틀 설정(로고)
         JLabel titleLabel = new JLabel();
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        String imagePath = Objects.requireNonNull(ConfigLoader.loadProperties("message")).getProperty("image.path");
-        ImageIcon titleIcon = ImageUtils.loadAndScaleImage(imagePath, 336, 192);
+        String logoImagePath = ImageUtils.getImagePath("logo");
+        ImageIcon titleIcon = ImageUtils.loadAndScaleImage(logoImagePath, 269, 154);
         titleLabel.setIcon(titleIcon); // 크기 조정된 이미지를 JLabel에 설정
         topPanel.add(titleLabel, BorderLayout.NORTH);
 
@@ -109,9 +143,8 @@ public class GameScreen extends JPanel {
         hintButton = new JButton(getHintButtonName());
         hintButton.setEnabled(false);
         hintButton.setPreferredSize(new Dimension(110, 30));
-        managePanel.add(hintButton, BorderLayout.WEST);
-
         hintButton.addActionListener(e -> provideHint());
+        managePanel.add(hintButton, BorderLayout.WEST);
 
         // 전광판
         boardLabel = new JLabel("");
@@ -121,8 +154,6 @@ public class GameScreen extends JPanel {
         // 시작/초기화 버튼
         startResetButton = new JButton(Constants.START);
         startResetButton.setPreferredSize(Constants.buttonSize);
-        managePanel.add(startResetButton, BorderLayout.EAST);
-
         startResetButton.addActionListener(e -> {
             if(isGameStarted) {
                 resetGame();
@@ -130,10 +161,13 @@ public class GameScreen extends JPanel {
                 startGame();
             }
         });
+        managePanel.add(startResetButton, BorderLayout.EAST);
 
         topPanel.add(managePanel, BorderLayout.SOUTH);
 
-        add(topPanel, BorderLayout.NORTH);
+        // combinedTopPanel에 topPanel 추가
+        combinedTopPanel.add(topPanel, BorderLayout.SOUTH);
+        add(combinedTopPanel, BorderLayout.NORTH);
 
         /**
          * 입력

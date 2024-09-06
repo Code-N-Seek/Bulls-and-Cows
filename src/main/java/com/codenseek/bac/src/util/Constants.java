@@ -25,6 +25,13 @@ public class Constants {
     public static final Color THEME_COLOR_YELLOW = new Color(253, 227, 87);
 
     /**
+     * 아이콘 크기 설정
+     */
+    public static final int ICON_WIDTH = 20;
+
+    public static final int ICON_HEIGHT = 20;
+
+    /**
      * TEXT 모음
      */
     public static final String TITLE = "BULLS AND COWS";
