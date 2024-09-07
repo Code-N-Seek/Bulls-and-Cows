@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * GridBagConstraints를 기본 설정과 패딩으로 구성하기 위한 유틸리티 클래스
@@ -48,5 +49,22 @@ public final class GbcUtils {
      */
     public static void configureGbcWithPadding(GridBagConstraints gbc, int padding) {
         gbc.insets = new Insets(padding, padding, padding, padding);
+    }
+
+    /**
+     * GridBagConstraints 설정 메서드
+     *
+     * @param gbc GridBagConstraints 객체
+     * @param gridy y축 위치
+     * @param top 상단 여백
+     * @param bottom 하단 여백
+     * @param padding 기본 패딩 값
+     */
+    public static void setGbcConstraints(GridBagConstraints gbc, int gridy, Integer top, Integer bottom, Integer padding) {
+        gbc.gridy = gridy;
+        gbc.insets.top = (top != null) ? top : defaultPadding;
+        gbc.insets.bottom = (bottom != null) ? bottom : defaultPadding;
+        gbc.insets.left = (padding != null) ? padding : defaultPadding;
+        gbc.insets.right = (padding != null) ? padding : defaultPadding;
     }
 }
