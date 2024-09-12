@@ -1,6 +1,7 @@
 package com.codenseek.bac.src;
 
 import com.codenseek.bac.src.ui.ImageUtils;
+import com.codenseek.bac.src.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
@@ -36,7 +37,7 @@ public class MainMenuScreen extends JPanel {
 
         // 게임 시작 버튼
         JButton startButton = createStartButton();
-        startButton.addActionListener(e -> frame.showScreen("initialScreen"));
+        startButton.addActionListener(e -> frame.showScreen(Constants.SETTING_SCREEN));
         gbc.gridy = 1;  // 타이틀 바로 아래 배치
         add(startButton, gbc);
     }

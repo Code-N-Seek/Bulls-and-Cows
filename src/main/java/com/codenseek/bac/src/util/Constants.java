@@ -8,31 +8,45 @@ import java.awt.*;
  */
 public class Constants {
     /**
-     * UI 요소들 간의 일정한 공백을 유지하기 위한 여백(Border)
+     * UI 요소들 간 여백
      */
     public static final EmptyBorder COMMON_EMPTY_BORDER = new EmptyBorder(10, 10, 10, 10);
 
     /**
-     * 버튼 공통 크기 설정
+     * 버튼
      */
     public static final Dimension buttonSize = new Dimension(80, 30); // 원하는 크기로 설정
 
     /**
-     * 버튼 공통 색상 설정
+     * 테마 색상
      */
     public static final Color THEME_COLOR_NAVY = new Color(46, 51, 67);
 
     public static final Color THEME_COLOR_YELLOW = new Color(253, 227, 87);
 
     /**
-     * 아이콘 크기 설정
+     * 아이콘
      */
     public static final int ICON_WIDTH = 20;
 
     public static final int ICON_HEIGHT = 20;
 
     /**
-     * TEXT 모음
+     * FONT
+     */
+    public static final String FONT_PATH = "/fonts/Binggrae.ttf";
+
+    /**
+     * 화면 이름
+     */
+    public static final String MAIN_MENU_SCREEN = "mainMenuScreen";
+
+    public static final String SETTING_SCREEN = "settingScreen";
+
+    public static final String GAME_SCREEN = "gameScreen";
+
+    /**
+     * 그 외
      */
     public static final String TITLE = "BULLS AND COWS";
 

@@ -27,7 +27,7 @@ public class EntryFrame extends JFrame {
      */
     public EntryFrame() {
         // 폰트 설정
-        FontLoader fontLoader = new FontLoader("/fonts/Binggrae.ttf", 12);
+        FontLoader fontLoader = new FontLoader(Constants.FONT_PATH, 12);
         FontLoader.setUIFont(new FontUIResource(fontLoader.getCustomFont()));
 
         // UI 테마 설정
@@ -46,16 +46,16 @@ public class EntryFrame extends JFrame {
         // 화면 패널을 contentPane에 추가
         contentPane.add(
                 new MainMenuScreen(this),
-                "mainMenuScreen"
+                Constants.MAIN_MENU_SCREEN
         );
         contentPane.add(
-                new InitialScreen(this),
-                "initialScreen"
+                new SettingScreen(this),
+                Constants.SETTING_SCREEN
         );
         gameScreen = new GameScreen(this);
         contentPane.add(
                 gameScreen,
-                "gameScreen"
+                Constants.GAME_SCREEN
         );
     }
 
@@ -79,7 +79,7 @@ public class EntryFrame extends JFrame {
     public void startGame(GameKind gameKind, int wordLength) {
         gameScreen.initGameSetting(gameKind, wordLength);
         gameScreen.updateGameScreen();
-        showScreen("gameScreen");
+        showScreen(Constants.GAME_SCREEN);
     }
 
     public static void main(String[] args) {
