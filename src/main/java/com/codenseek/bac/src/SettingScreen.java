@@ -1,6 +1,6 @@
 package com.codenseek.bac.src;
 
-import com.codenseek.bac.src.ui.GbcUtils;
+import com.codenseek.bac.src.config.GameSettings;
 import com.codenseek.bac.src.util.InputFilters;
 import com.codenseek.bac.src.message.Messages;
 import com.codenseek.bac.src.util.*;
@@ -17,13 +17,12 @@ import java.util.Objects;
  * 숫자야구 게임의 초기 화면 구현 클래스
  * - 사용자가 게임에서 사용할 단어의 자릿수를 입력하고 이를 확인하는 기능 제공
  */
-public class InitialScreen extends JPanel {
-    private final JComboBox<GameKind> gameKindCombo;  // 게임 종류를 선택하는 콤보 박스
-    private final JTextField wordLengthField;   // 자릿수를 입력받는 텍스트 필드
+public class SettingScreen extends JPanel {
+    private JComboBox<GameKind> gameKindCombo = null;  // 게임 종류를 선택하는 콤보 박스
+    private JTextField inputLengthField = null;   // 자릿수를 입력받는 텍스트 필드
     private final GridBagConstraints gbc; // GridBagConstraints 객체
     private GameKind gameKind;  // 게임 종류
-    private String wordLengthText;  // 입력받은 단어 길이 텍스트
-    private int wordLength; // 단어 길이
+    private int inputLength; // 단어 길이
 
 
     /**
@@ -32,11 +31,18 @@ public class InitialScreen extends JPanel {
      *
      * @param frame EntryFrame 객체
      */
-    public InitialScreen(EntryFrame frame) {
+    public SettingScreen(EntryFrame frame) {
         setLayout(new GridBagLayout());
 
         // 기본 GridBagConstraints 설정
         gbc = createDefaultGbc();
+
+        // 기존 입력 설정 가져오기
+        GameSettings savedSettings = GameSettings.getSavedSettings();
+        if(savedSettings != null) {
+            gameKindCombo.setSelectedItem(savedSettings.getGameKind());
+            inputLengthField.setText(String.valueOf(savedSettings.getInputLength()));
+        }
 
         /**
          * 게임 종류 지정
@@ -53,12 +59,12 @@ public class InitialScreen extends JPanel {
          * 자릿수 지정
          */
         // 레이블
-        JLabel wordLengthLabel = createWordLengthLabel();
-        add(wordLengthLabel, gbc);
+        JLabel inputLengthLabel = createWordLengthLabel();
+        add(inputLengthLabel, gbc);
 
         // 자릿수를 입력받는 텍스트 필드
-        wordLengthField = createWordLengthField();
-        add(wordLengthField, gbc);
+        inputLengthField = createInputLengthField();
+        add(inputLengthField, gbc);
 
         /**
          * 확인 버튼
@@ -66,7 +72,10 @@ public class InitialScreen extends JPanel {
         JButton confirmButton = createConfirmButton(frame);
         confirmButton.addActionListener(e -> {
             if (isInputValid()) {
-                frame.startGame(gameKind, wordLength);
+                GameSettings.builder()
+                        .gameKind(gameKind)
+                        .inputLength(inputLength);
+                frame.startGame(gameKind, inputLength);
             }
         });
         add(confirmButton, gbc);
@@ -113,7 +122,7 @@ public class InitialScreen extends JPanel {
      *
      * @return 자릿수를 입력받을 JTextField
      */
-    private JTextField createWordLengthField() {
+    private JTextField createInputLengthField() {
         setGbcConstraints(gbc, 3, 2, null, null);
 
         JTextField textField = new JTextField(3);
@@ -141,11 +150,7 @@ public class InitialScreen extends JPanel {
      */
     private boolean isInputValid() {
         try {
-            if (!isGameKindSelected()) {
-                return false;
-            }
-
-            if (!isWordLengthValid()) {
+            if (!isGameKindSelected() || !isInputLengthValid()) {
                 return false;
             }
         } catch (NumberFormatException ex) {
@@ -176,15 +181,16 @@ public class InitialScreen extends JPanel {
      *
      * @return 자릿수가 유효하면 true, 그렇지 않으면 false
      */
-    private boolean isWordLengthValid() {
-        wordLengthText = wordLengthField.getText();
-        if (wordLengthText.trim().isEmpty()) {
+    private boolean isInputLengthValid() {
+        // 입력받은 단어 길이 텍스트
+        String inputLengthText = inputLengthField.getText();
+        if (inputLengthText.trim().isEmpty()) {
             showErrorMessage(this, Messages.ERROR_EMPTY_LENGTH);
             return false;
         }
 
-        wordLength = Integer.parseInt(wordLengthText);
-        if (wordLength < 3 || wordLength > 7) {
+        inputLength = Integer.parseInt(inputLengthText);
+        if (inputLength < 3 || inputLength > 7) {
             showErrorMessage(this, Messages.INVALID_WORD_LENGTH);
             return false;
         }

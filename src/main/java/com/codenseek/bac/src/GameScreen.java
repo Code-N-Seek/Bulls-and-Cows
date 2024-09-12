@@ -26,8 +26,9 @@ import static com.codenseek.bac.src.message.MessageUtils.showNotificationMessage
  * 숫자야구 게임의 실제 게임 진행 화면 구현 클래스
  * - 게임 입력 필드, 힌트 버튼, 과거 입력 내역 관리
  * - 게임의 시작/초기화 기능 제공
+ * - 게임 설정 페이지 이동
  *
- * TODO: 뒤로가기, 남은 시도 횟수, 테이블 데이터 행과 헤더 행 어긋나는 문제 해결, 순위(기록)
+ * TODO: 남은 시도 횟수, 테이블 데이터 행과 헤더 행 어긋나는 문제 해결, 순위(기록)
  */
 @Slf4j
 public class GameScreen extends JPanel {
@@ -98,24 +99,23 @@ public class GameScreen extends JPanel {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBorder(new EmptyBorder(3, 0, 3, 0));
 
-        // TODO : 뒤로가기 이벤트 핸들러 구현
         JButton previousButton = new JButton();
         String previousImagePath = ImageUtils.getImagePath( "previous");
         ImageIcon previousIcon = ImageUtils.loadAndScaleImage(previousImagePath, Constants.ICON_WIDTH, Constants.ICON_HEIGHT);
         previousButton.setIcon(previousIcon);
 
         UIManagerUtils.initButtonProperties(previousButton);
-        previousButton.addActionListener(e -> provideHint());
+        previousButton.addActionListener(e -> frame.showScreen(Constants.SETTING_SCREEN));
 
         headerPanel.add(previousButton, BorderLayout.WEST);
 
-        // TODO : 설정버튼 이벤트 핸들러 구현
         JButton settingButton = new JButton();
         String settingImagePath = ImageUtils.getImagePath("setting");
         ImageIcon settingIcon =  ImageUtils.loadAndScaleImage(settingImagePath, Constants.ICON_WIDTH, Constants.ICON_HEIGHT);
         settingButton.setIcon(settingIcon);
         UIManagerUtils.initButtonProperties(settingButton);
-        settingButton.addActionListener(e -> provideHint());
+        // TODO : 설정버튼 이벤트 핸들러 구현
+        settingButton.addActionListener(e -> onClickSettingButton());
 
         headerPanel.add(settingButton, BorderLayout.EAST);
 
@@ -242,6 +242,13 @@ public class GameScreen extends JPanel {
         if(hintCount == 0) {
             hintButton.setEnabled(false);
         }
+    }
+
+    /**
+     * TODO : 설정버튼 클릭 시 호출되는 메서드 구현
+     */
+    private void onClickSettingButton() {
+
     }
 
     /**
